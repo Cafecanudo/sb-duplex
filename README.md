@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.2.0b1`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.2.0b2`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -297,9 +297,9 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | (padrão) | Barra de progresso numa linha atualizada no lugar: percentual, blocos, KB/s, tempo restante (pela taxa recente) e round/MCS. Avisos (clip) aparecem acima dela. Só em terminal (inclui o Git Bash); com a saída redirecionada, volta às linhas por round. |
 | `--verbose` | Mostra também uma linha por round (TX) e por quadro (RX). |
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
-| `--json` | Saída em JSON para scripts e testes: uma linha por evento (progresso e resultado); no `--list-devices`, um único documento com `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `defaults` e `config`. |
+| `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 1` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `defaults` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.2.0b1`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.2.0b2`) e sai. |
 
 ### Configuração e diagnóstico
 
