@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" width="960" height="620" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Ligação bidirecional com um cabo P3 (combo fone + microfone) e adaptador cruzado no PC B</title>
+  <style>
+    .flui { animation: flui 0.9s linear infinite; }
+    .flui-volta { animation: flui-volta 0.9s linear infinite; }
+    @keyframes flui { to { stroke-dashoffset: -22; } }
+    @keyframes flui-volta { to { stroke-dashoffset: 22; } }
+    @media (prefers-reduced-motion: reduce) { .flui, .flui-volta { animation: none; } }
+    @media (prefers-color-scheme: dark) {
+      rect[fill="#ffffff"] { fill: #0d1117; }
+      rect[fill="#f3f4f6"] { fill: #161b22; }
+      rect[stroke="#9ca3af"] { stroke: #6e7681; }
+      rect[fill="#e5e7eb"] { fill: #21262d; }
+      rect[stroke="#d1d5db"] { stroke: #30363d; }
+      rect[fill="#111827"] { fill: #1c2128; stroke: #444c56; }
+      path[fill="#111827"] { fill: #444c56; }
+      path[stroke="#1f2937"] { stroke: #6e7681; }
+      rect[fill="#eff6ff"] { fill: #0d1a2e; stroke: #1f3a68; }
+      rect[fill="#fef3c7"] { fill: #2e2208; stroke: #9e6a03; }
+      circle[fill="#fbcfe8"] { fill: #5c2340; }
+      circle[fill="#bbf7d0"] { fill: #1b4d2e; }
+      circle[stroke="#d1d5db"] { stroke: #30363d; }
+      circle[fill="#374151"] { fill: #6e7681; }
+      circle[stroke="#111827"] { stroke: #c9d1d9; }
+      text[fill="#111827"] { fill: #e6edf3; }
+      text[fill="#374151"] { fill: #c9d1d9; }
+      text[fill="#4b5563"] { fill: #9da5af; }
+      text[fill="#6b7280"], text[fill="#9ca3af"] { fill: #8b949e; }
+      text[fill="#1e3a8a"] { fill: #a5c8ff; }
+      text[fill="#15803d"] { fill: #3fb950; }
+      text[fill="#be185d"] { fill: #f778ba; }
+      text[fill="#1d4ed8"], text[fill="#2563eb"] { fill: #58a6ff; }
+      text[fill="#c2410c"] { fill: #ffa657; }
+      text[fill="#92400e"] { fill: #f2cc60; }
+    }
+  </style>
+  <defs>
+    <marker id="seta-dados" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="seta-ack" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="620" fill="#ffffff"/>
+  <text x="480" y="40" text-anchor="middle" font-size="22" font-weight="600" fill="#111827">Ligação bidirecional com um cabo P3 (combo)</text>
+  <text x="480" y="66" text-anchor="middle" font-size="14" fill="#4b5563">Um cabo P3 de 4 polos leva os dois sentidos; no PC B, o adaptador fone + microfone é ligado cruzado.</text>
+
+  <!-- PC A: conector combo -->
+  <rect x="40" y="100" width="300" height="230" rx="14" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2"/>
+  <text x="190" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#111827">PC A</text>
+  <text x="190" y="154" text-anchor="middle" font-size="14" fill="#374151">notebook com entrada combo</text>
+  <rect x="80" y="172" width="220" height="110" rx="8" fill="#e5e7eb" stroke="#d1d5db"/>
+  <text x="190" y="194" text-anchor="middle" font-size="12" fill="#6b7280">conector de áudio</text>
+  <circle cx="150" cy="232" r="17" fill="#374151" stroke="#111827" stroke-width="3"/>
+  <circle cx="150" cy="232" r="6" fill="#030712"/>
+  <text x="150" y="270" text-anchor="middle" font-size="12" font-weight="600" fill="#111827">COMBO P3</text>
+  <text x="150" y="286" text-anchor="middle" font-size="11" fill="#374151">fone + microfone</text>
+
+  <!-- PC B: conectores separados -->
+  <rect x="620" y="100" width="300" height="230" rx="14" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2"/>
+  <text x="770" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#111827">PC B</text>
+  <text x="770" y="154" text-anchor="middle" font-size="14" fill="#374151">conectores separados</text>
+  <rect x="660" y="172" width="220" height="110" rx="8" fill="#e5e7eb" stroke="#d1d5db"/>
+  <text x="750" y="194" text-anchor="middle" font-size="12" fill="#6b7280">conectores de áudio</text>
+  <circle cx="710" cy="232" r="17" fill="#22c55e" stroke="#15803d" stroke-width="3"/>
+  <circle cx="710" cy="232" r="6" fill="#14532d"/>
+  <text x="710" y="270" text-anchor="middle" font-size="12" font-weight="600" fill="#15803d">SAÍDA</text>
+  <text x="710" y="286" text-anchor="middle" font-size="11" fill="#374151">fone / linha</text>
+  <circle cx="830" cy="232" r="17" fill="#ec4899" stroke="#be185d" stroke-width="3"/>
+  <circle cx="830" cy="232" r="6" fill="#831843"/>
+  <text x="830" y="270" text-anchor="middle" font-size="12" font-weight="600" fill="#be185d">ENTRADA</text>
+  <text x="830" y="286" text-anchor="middle" font-size="11" fill="#374151">microfone / linha</text>
+
+  <!-- cabo P3 (leva os dois sentidos): combo do PC A → adaptador -->
+  <path d="M184,232 L350,232" fill="none" stroke="#1f2937" stroke-width="8" stroke-linecap="round"/>
+  <path d="M184,228 L350,228" fill="none" stroke="#2563eb" stroke-width="2" class="flui" stroke-dasharray="10 12"/>
+  <path d="M184,236 L350,236" fill="none" stroke="#ea580c" stroke-width="2" class="flui-volta" stroke-dasharray="10 12"/>
+  <rect x="167" y="223" width="22" height="18" rx="3" fill="#6b7280"/>
+  <text x="252" y="304" text-anchor="middle" font-size="12" font-weight="600" fill="#111827">cabo P3 (TRRS, 4 polos)</text>
+  <text x="252" y="320" text-anchor="middle" font-size="11.5" fill="#4b5563">leva os dois sentidos</text>
+
+  <!-- adaptador P3 → P2 fone + P2 mic -->
+  <rect x="350" y="214" width="24" height="36" rx="5" fill="#4b5563"/>
+  <path d="M374,222 L400,222 L414,214 L426,214 L426,250 L414,250 L400,242 L374,242 z" fill="#111827"/>
+  <rect x="417" y="219" width="9" height="12" rx="2" fill="#22c55e"/>
+  <rect x="417" y="233" width="9" height="12" rx="2" fill="#ec4899"/>
+  <text x="388" y="193" text-anchor="middle" font-size="11" font-weight="600" fill="#111827">adaptador Y</text>
+  <text x="388" y="207" text-anchor="middle" font-size="10.5" fill="#4b5563">separa fone e mic</text>
+
+  <!-- ramo "fone" (dados A → B) → ENTRADA do PC B, por cima -->
+  <path d="M426,226 L432,226 Q444,226 444,214 L444,96 Q444,84 456,84 L818,84 Q830,84 830,96 L830,215" fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round"/>
+  <path d="M426,226 L432,226 Q444,226 444,214 L444,96 Q444,84 456,84 L818,84 Q830,84 830,96 L830,215" fill="none" stroke="#2563eb" stroke-width="2" class="flui" stroke-dasharray="10 12"/>
+  <path d="M680,84 L702,84" stroke="#2563eb" stroke-width="2" marker-end="url(#seta-dados)"/>
+  <rect x="822" y="196" width="16" height="22" rx="3" fill="#22c55e" stroke="#15803d"/>
+  <text x="460" y="108" font-size="12" font-weight="600" fill="#15803d">plugue "fone" (verde)</text>
+  <text x="460" y="124" font-size="12" fill="#1d4ed8">dados A → B</text>
+  <text x="460" y="140" font-size="12" fill="#1d4ed8">vai na ENTRADA de B</text>
+
+  <!-- ramo "mic" (retorno B → A) → SAÍDA do PC B, reto -->
+  <path d="M426,238 L693,238" fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round"/>
+  <path d="M426,238 L693,238" fill="none" stroke="#ea580c" stroke-width="2" class="flui-volta" stroke-dasharray="10 12"/>
+  <path d="M604,238 L582,238" stroke="#ea580c" stroke-width="2" marker-end="url(#seta-ack)"/>
+  <rect x="671" y="230" width="22" height="16" rx="3" fill="#ec4899" stroke="#be185d"/>
+  <text x="460" y="262" font-size="12" font-weight="600" fill="#be185d">plugue "mic" (rosa)</text>
+  <text x="460" y="278" font-size="12" fill="#c2410c">retorno B → A</text>
+  <text x="460" y="294" font-size="12" fill="#c2410c">vai na SAÍDA de B</text>
+
+  <!-- destaque do cruzamento -->
+  <rect x="362" y="306" width="250" height="26" rx="13" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="487" y="324" text-anchor="middle" font-size="12.5" font-weight="600" fill="#92400e">ligação cruzada: fone → entrada · mic → saída</text>
+
+  <!-- comandos -->
+  <rect x="40" y="350" width="300" height="80" rx="8" fill="#111827"/>
+  <text x="56" y="374" font-size="12" fill="#9ca3af">PC A (envia)</text>
+  <text x="56" y="396" font-size="12" fill="#f9fafb" font-family="Consolas, Menlo, monospace">python -m soundbridge --tx ARQ --bi</text>
+  <text x="56" y="416" font-size="12" fill="#f9fafb" font-family="Consolas, Menlo, monospace">  --out FONE --in MICROFONE</text>
+  <rect x="620" y="350" width="300" height="80" rx="8" fill="#111827"/>
+  <text x="636" y="374" font-size="12" fill="#9ca3af">PC B (recebe)</text>
+  <text x="636" y="396" font-size="12" fill="#f9fafb" font-family="Consolas, Menlo, monospace">python -m soundbridge --rx PASTA --keep</text>
+  <text x="636" y="416" font-size="12" fill="#f9fafb" font-family="Consolas, Menlo, monospace">  --in ENTRADA --out SAÍDA</text>
+  <text x="480" y="372" text-anchor="middle" font-size="12.5" fill="#4b5563">No PC A, o combo aparece como</text>
+  <text x="480" y="390" text-anchor="middle" font-size="12.5" fill="#4b5563">dois devices: o de fone (--out)</text>
+  <text x="480" y="408" text-anchor="middle" font-size="12.5" fill="#4b5563">e o de microfone (--in)</text>
+
+  <!-- dicas -->
+  <rect x="40" y="448" width="880" height="156" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="58" y="472" font-size="13" fill="#1e3a8a">• O conector combo (P3, 4 polos) tem fone e microfone juntos: o cabo P3 leva a saída de A num par de fios e o</text>
+  <text x="70" y="490" font-size="13" fill="#1e3a8a">microfone de A em outro. O adaptador Y separa o microfone num fio próprio: plugue "fone" (verde) e "mic" (rosa).</text>
+  <text x="58" y="512" font-size="13" fill="#1e3a8a">• No PC B, ligue <tspan font-weight="600">cruzado</tspan>: o plugue "fone" (que traz a saída de A) vai na ENTRADA do PC B; o plugue "mic"</text>
+  <text x="70" y="530" font-size="13" fill="#1e3a8a">vai na SAÍDA do PC B e leva o retorno até o microfone de A.</text>
+  <text x="58" y="552" font-size="13" fill="#1e3a8a">• Os dois sentidos passam por entradas de microfone: espere mono, banda estreita e AGC. Rode</text>
+  <text x="70" y="570" font-size="13" fill="#1e3a8a"><tspan font-family="Consolas, Menlo, monospace">--calibrate --calibrate-test --calibrate-save</tspan> para achar o nível, a banda e o MCS de cada sentido.</text>
+  <text x="58" y="592" font-size="13" fill="#1e3a8a">• Sem sinal num sentido? O adaptador pode ser de outro padrão (CTIA × OMTP trocam terra e microfone): troque o adaptador.</text>
+</svg>

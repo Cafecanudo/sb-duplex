@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 580" width="960" height="580" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>Ligação bidirecional: dois cabos cruzados, saída de cada PC na entrada do outro</title>
+  <style>
+    .flui { animation: flui 0.9s linear infinite; }
+    .flui-volta { animation: flui-volta 0.9s linear infinite; }
+    @keyframes flui { to { stroke-dashoffset: -22; } }
+    @keyframes flui-volta { to { stroke-dashoffset: 22; } }
+    @media (prefers-reduced-motion: reduce) { .flui, .flui-volta { animation: none; } }
+    @media (prefers-color-scheme: dark) {
+      rect[fill="#ffffff"] { fill: #0d1117; }
+      rect[fill="#f3f4f6"] { fill: #161b22; }
+      rect[stroke="#9ca3af"] { stroke: #6e7681; }
+      rect[fill="#e5e7eb"] { fill: #21262d; }
+      rect[stroke="#d1d5db"] { stroke: #30363d; }
+      rect[fill="#111827"] { fill: #1c2128; stroke: #444c56; }
+      path[fill="#111827"] { fill: #444c56; }
+      path[stroke="#1f2937"] { stroke: #6e7681; }
+      rect[fill="#eff6ff"] { fill: #0d1a2e; stroke: #1f3a68; }
+      rect[fill="#fef3c7"] { fill: #2e2208; stroke: #9e6a03; }
+      circle[fill="#fbcfe8"] { fill: #5c2340; }
+      circle[fill="#bbf7d0"] { fill: #1b4d2e; }
+      circle[stroke="#d1d5db"] { stroke: #30363d; }
+      circle[fill="#374151"] { fill: #6e7681; }
+      circle[stroke="#111827"] { stroke: #c9d1d9; }
+      text[fill="#111827"] { fill: #e6edf3; }
+      text[fill="#374151"] { fill: #c9d1d9; }
+      text[fill="#4b5563"] { fill: #9da5af; }
+      text[fill="#6b7280"], text[fill="#9ca3af"] { fill: #8b949e; }
+      text[fill="#1e3a8a"] { fill: #a5c8ff; }
+      text[fill="#15803d"] { fill: #3fb950; }
+      text[fill="#be185d"] { fill: #f778ba; }
+      text[fill="#1d4ed8"], text[fill="#2563eb"] { fill: #58a6ff; }
+      text[fill="#c2410c"] { fill: #ffa657; }
+      text[fill="#92400e"] { fill: #f2cc60; }
+    }
+  </style>
+  <defs>
+    <marker id="seta-dados" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="seta-ack" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="580" fill="#ffffff"/>
+  <text x="480" y="40" text-anchor="middle" font-size="22" font-weight="600" fill="#111827">Ligação bidirecional (dois cabos cruzados)</text>
+  <text x="480" y="66" text-anchor="middle" font-size="14" fill="#4b5563">A saída de cada PC entra na entrada do outro: dados num sentido, confirmação (ACK) no outro.</text>
+
+  <!-- PC A -->
+  <rect x="40" y="100" width="300" height="230" rx="14" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2"/>
+  <text x="190" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#111827">PC A</text>
+  <text x="190" y="154" text-anchor="middle" font-size="14" fill="#374151">transmite (TX)</text>
+  <rect x="80" y="172" width="220" height="110" rx="8" fill="#e5e7eb" stroke="#d1d5db"/>
+  <text x="210" y="194" text-anchor="middle" font-size="12" fill="#6b7280">conectores de áudio</text>
+  <circle cx="130" cy="232" r="17" fill="#22c55e" stroke="#15803d" stroke-width="3"/>
+  <circle cx="130" cy="232" r="6" fill="#14532d"/>
+  <text x="130" y="270" text-anchor="middle" font-size="12" font-weight="600" fill="#15803d">SAÍDA</text>
+  <text x="130" y="286" text-anchor="middle" font-size="11" fill="#374151">fone / linha</text>
+  <circle cx="250" cy="232" r="17" fill="#ec4899" stroke="#be185d" stroke-width="3"/>
+  <circle cx="250" cy="232" r="6" fill="#831843"/>
+  <text x="250" y="270" text-anchor="middle" font-size="12" font-weight="600" fill="#be185d">ENTRADA</text>
+  <text x="250" y="286" text-anchor="middle" font-size="11" fill="#374151">microfone / linha</text>
+
+  <!-- PC B -->
+  <rect x="620" y="100" width="300" height="230" rx="14" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2"/>
+  <text x="770" y="132" text-anchor="middle" font-size="18" font-weight="600" fill="#111827">PC B</text>
+  <text x="770" y="154" text-anchor="middle" font-size="14" fill="#374151">recebe (RX)</text>
+  <rect x="660" y="172" width="220" height="110" rx="8" fill="#e5e7eb" stroke="#d1d5db"/>
+  <text x="750" y="194" text-anchor="middle" font-size="12" fill="#6b7280">conectores de áudio</text>
+  <circle cx="710" cy="232" r="17" fill="#22c55e" stroke="#15803d" stroke-width="3"/>
+  <circle cx="710" cy="232" r="6" fill="#14532d"/>
+  <text x="710" y="270" text-anchor="middle" font-size="12" font-weight="600" fill="#15803d">SAÍDA</text>
+  <text x="710" y="286" text-anchor="middle" font-size="11" fill="#374151">fone / linha</text>
+  <circle cx="830" cy="232" r="17" fill="#ec4899" stroke="#be185d" stroke-width="3"/>
+  <circle cx="830" cy="232" r="6" fill="#831843"/>
+  <text x="830" y="270" text-anchor="middle" font-size="12" font-weight="600" fill="#be185d">ENTRADA</text>
+  <text x="830" y="286" text-anchor="middle" font-size="11" fill="#374151">microfone / linha</text>
+
+  <!-- cabo 1: dados, A saída → B entrada (por cima) -->
+  <path d="M130,215 L130,96 Q130,84 142,84 L818,84 Q830,84 830,96 L830,215" fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round"/>
+  <path d="M130,215 L130,96 Q130,84 142,84 L818,84 Q830,84 830,96 L830,215" fill="none" stroke="#2563eb" stroke-width="2" class="flui" stroke-dasharray="10 12"/>
+  <path d="M470,84 L492,84" stroke="#2563eb" stroke-width="2" marker-end="url(#seta-dados)"/>
+  <rect x="122" y="196" width="16" height="22" rx="3" fill="#6b7280"/>
+  <rect x="822" y="196" width="16" height="22" rx="3" fill="#6b7280"/>
+  <rect x="370" y="104" width="220" height="44" rx="8" fill="#ffffff" stroke="#bfdbfe"/>
+  <text x="480" y="123" text-anchor="middle" font-size="13" font-weight="600" fill="#1d4ed8">cabo 1 · dados</text>
+  <text x="480" y="140" text-anchor="middle" font-size="12" fill="#4b5563">saída de A → entrada de B</text>
+
+  <!-- cabo 2: ACK, B saída → A entrada (pelo meio) -->
+  <path d="M693,232 L267,232" fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round"/>
+  <path d="M693,232 L267,232" fill="none" stroke="#ea580c" stroke-width="2" class="flui" stroke-dasharray="10 12"/>
+  <path d="M492,232 L470,232" stroke="#ea580c" stroke-width="2" marker-end="url(#seta-ack)"/>
+  <rect x="267" y="224" width="22" height="16" rx="3" fill="#6b7280"/>
+  <rect x="671" y="224" width="22" height="16" rx="3" fill="#6b7280"/>
+  <rect x="370" y="252" width="220" height="44" rx="8" fill="#ffffff" stroke="#fed7aa"/>
+  <text x="480" y="271" text-anchor="middle" font-size="13" font-weight="600" fill="#c2410c">cabo 2 · ACK / retorno</text>
+  <text x="480" y="288" text-anchor="middle" font-size="12" fill="#4b5563">saída de B → entrada de A</text>
+
+  <!-- comandos -->
+  <rect x="40" y="350" width="300" height="80" rx="8" fill="#111827"/>
+  <text x="56" y="374" font-size="12" fill="#9ca3af">PC A (envia)</text>
+  <text x="56" y="396" font-size="12" fill="#f9fafb" font-family="Consolas, Menlo, monospace">python -m soundbridge --tx ARQ --bi</text>
+  <text x="56" y="416" font-size="12" fill="#f9fafb" font-family="Consolas, Menlo, monospace">  --out SAÍDA --in ENTRADA</text>
+  <rect x="620" y="350" width="300" height="80" rx="8" fill="#111827"/>
+  <text x="636" y="374" font-size="12" fill="#9ca3af">PC B (recebe)</text>
+  <text x="636" y="396" font-size="12" fill="#f9fafb" font-family="Consolas, Menlo, monospace">python -m soundbridge --rx PASTA --keep</text>
+  <text x="636" y="416" font-size="12" fill="#f9fafb" font-family="Consolas, Menlo, monospace">  --in ENTRADA --out SAÍDA</text>
+  <text x="480" y="384" text-anchor="middle" font-size="13" fill="#4b5563">--out = saída deste PC</text>
+  <text x="480" y="404" text-anchor="middle" font-size="13" fill="#4b5563">--in = entrada deste PC</text>
+
+  <!-- dicas -->
+  <rect x="40" y="448" width="880" height="112" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="58" y="472" font-size="13" fill="#1e3a8a">• Os dois cabos são iguais (P2 3,5 mm, macho-macho, estéreo). O cabo 2 leva o <tspan font-weight="600">ACK</tspan>: confirmação, pedido de</text>
+  <text x="70" y="490" font-size="13" fill="#1e3a8a">reenvio do que faltou e as respostas da calibração. Com ele o TX usa <tspan font-family="Consolas, Menlo, monospace">--bi</tspan> e o RX precisa de <tspan font-family="Consolas, Menlo, monospace">--out</tspan>.</text>
+  <text x="58" y="512" font-size="13" fill="#1e3a8a">• Em cada PC, <tspan font-family="Consolas, Menlo, monospace">--out</tspan> é sempre a sua saída e <tspan font-family="Consolas, Menlo, monospace">--in</tspan> a sua entrada, seja ele TX ou RX: para inverter o sentido, só troque os papéis.</text>
+  <text x="58" y="534" font-size="13" fill="#1e3a8a">• Rode <tspan font-family="Consolas, Menlo, monospace">--calibrate --calibrate-test --calibrate-save</tspan> uma vez: mede os dois sentidos e grava os parâmetros</text>
+  <text x="70" y="552" font-size="13" fill="#1e3a8a">nos dois PCs (prefira entrada de linha; no microfone, volume baixo, sem boost e sem AGC).</text>
+</svg>
