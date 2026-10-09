@@ -18,12 +18,14 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 ## Instalação
 
 ```bash
-python -m pip install sb-duplex
+python -m pip install --pre sb-duplex
 ```
 
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.2.0b1`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
+python -m soundbridge --version
 python -m soundbridge --help
 python -m soundbridge --list-devices
 ```
@@ -297,6 +299,7 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
 | `--json` | Saída em JSON para scripts e testes: uma linha por evento (progresso e resultado); no `--list-devices`, um único documento com `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `defaults` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.2.0b1`) e sai. |
 
 ### Configuração e diagnóstico
 
