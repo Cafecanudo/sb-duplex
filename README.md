@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.2.0b2`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.2.0b3`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -149,6 +149,37 @@ reforço (boost) da entrada. "AGC" indica ganho automático na entrada: a calibr
 limita o MCS e quadros longos podem falhar; o melhor é desligar o AGC/melhorias de áudio da entrada, ou
 usar uma entrada de linha. Recalibre sempre que trocar de placa, porta, cabo ou volume.
 
+### Calibrar só a ida (um cabo)
+
+Com um só cabo, ou quando a volta não é confiável, `--calibrate-uni` mede **só o sentido de ida** e o resultado
+aparece **na tela do PC que recebe**. Você digita os parâmetros no PC que envia.
+
+1. O PC que recebe fica em `--rx` como sempre (o `--out` é opcional).
+2. O PC que envia roda `--calibrate-uni`: toca a sondagem (~5 s) e termina.
+3. O PC que recebe mede e mostra a escolha e os parâmetros para o TX.
+4. No PC que envia, use esses parâmetros no `--tx`.
+
+```bash
+PC B:  python -m soundbridge --rx D:\recebidos --in t4wq
+PC A:  python -m soundbridge --calibrate-uni --out k7p2
+```
+
+No PC B:
+
+```
+calibração (só de ida) recebida: mono · 7 kHz · MCS 1 (QPSK r34) · pico 0.003 · SNR 26 dB
+  aviso: ganho automático (AGC) ou compressão na entrada: desligue o AGC/melhorias de áudio
+  no PC que enviou, use: --mono --band-high 7000 --peak 0.003 --mcs 1
+```
+
+E no PC A:
+
+```bash
+PC A:  python -m soundbridge --tx C:\relatorio.pdf --out k7p2 --mono --band-high 7000 --peak 0.003 --mcs 1
+```
+
+Não há validação com transferências nem gravação de perfil: sem a volta, o PC A não sabe o que chegou.
+
 ### Enviar dados
 
 O RX sobe primeiro (fica esperando); depois o TX envia. **PC A envia → PC B recebe.**
@@ -255,7 +286,7 @@ O arquivo é gravado com o mesmo nome (mais a subpasta do `--dest` do TX) e nunc
 
 ## Parâmetros da linha de comando
 
-Uma ação por vez (`--tx`, `--rx`, `--calibrate`, `--list-devices`, `--alias`, `--save-defaults`,
+Uma ação por vez (`--tx`, `--rx`, `--calibrate`, `--calibrate-uni`, `--list-devices`, `--alias`, `--save-defaults`,
 `--clear-defaults`). As tabelas abaixo agrupam os parâmetros por quem os usa.
 
 ### TX (envio): `python -m soundbridge --tx ...`
@@ -299,7 +330,7 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
 | `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 1` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `defaults` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.2.0b2`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.2.0b3`) e sai. |
 
 ### Configuração e diagnóstico
 
@@ -310,7 +341,8 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--save-defaults` | Grava o `--out`, o `--in` e/ou a pasta do `--rx` (`--dir PASTA`) informados como padrão (devices validados antes de gravar). O informado na linha de comando sempre vence. Um par basta para os dois papéis: em cada PC a saída e a entrada do enlace são as mesmas, seja ele TX ou RX. |
 | `--dir PASTA` | Com `--save-defaults`: pasta padrão onde o `--rx` grava os arquivos. |
 | `--clear-defaults` | Remove os padrões (devices e pasta). |
-| `--calibrate` | Calibra o enlace nos **dois sentidos** contra um RX em escuta (`--rx` com `--out`): uma sondagem de ~5 s em cada sentido mede nível, mono/estéreo, banda e SNR e recomenda `--peak`, `--mono`, `--band-high` e `--mcs` para cada um, com os comandos de TX e RX. Avisa entrada saturada e AGC. Exige `--out` e `--in`. |
+| `--calibrate` | Calibra o enlace nos **dois sentidos** contra um RX em escuta (`--rx` com `--out`; um RX sem `--out` só mede e mostra o resultado, como na `--calibrate-uni`): uma sondagem de ~5 s em cada sentido mede nível, mono/estéreo, banda e SNR e recomenda `--peak`, `--mono`, `--band-high` e `--mcs` para cada um, com os comandos de TX e RX. Avisa entrada saturada e AGC. Exige `--out` e `--in`. |
+| `--calibrate-uni` | Calibra **só a ida** (um cabo): toca a sondagem pela `--out`; o RX do outro PC (em `--rx`, com ou sem `--out`) mede e mostra na tela dele a escolha e os parâmetros (`--mono`, `--band-high`, `--peak`, `--mcs`) para usar no TX. Sem validação nem gravação. Exige `--out`. |
 | `--calibrate-test [TAMANHOS]` | Com `--calibrate`: valida a escolha de cada sentido com transferências reais em bi (descartadas no RX), nos tamanhos da lista separada por vírgula: `2k`, `5k`, `10k`, `20k`, `50k`, `100k`, `200k`, `500k`, `1mb`, `5mb`, `10mb` (ex.: `--calibrate-test 5k,10k,10mb`; sem lista: `5k`). Repetições: 10 até 100k, 3 até 1mb, 1 em 5mb e 10mb. Testa do menor ao maior; aceita acima de 80% em cada tamanho; na 1ª reprovação desce um degrau (MCS, depois banda, depois mono) e recomeça, até 4 tentativas. Tamanhos grandes levam minutos (10mb ≈ 15 min por tentativa no melhor caso). |
 | `--calibrate-save` | Com `--calibrate`: grava o resultado como perfil padrão nos **dois PCs**, por par de devices. Depois, `--tx` usa pico, mono, banda e MCS do perfil e `--rx` usa o pico do ACK, quando não forem informados (o informado sempre vence). Sem ele, a calibração só mostra o resultado. |
 
