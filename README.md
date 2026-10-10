@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.2.0b3`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.2.0b4`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -279,7 +279,7 @@ PC B:  python -m soundbridge --save-defaults --out d9fr --in t4wq --dir D:\receb
 PC B:  python -m soundbridge --rx --keep
 ```
 
-O arquivo é gravado com o mesmo nome (mais a subpasta do `--dest` do TX) e nunca sobrescreve:
+O arquivo é gravado com o mesmo nome (mais a subpasta do `--dest` do TX) e, sem `--force-repl` no TX, nunca sobrescreve:
 `relatorio (1).pdf`. Ctrl+C encerra o RX (código de saída 130).
 
 ---
@@ -299,6 +299,7 @@ Uma ação por vez (`--tx`, `--rx`, `--calibrate`, `--calibrate-uni`, `--list-de
 | `--mcs 0-9` | Fixa o MCS (desliga a adaptação no bi). Não combina com `--auto`. Tabela abaixo. |
 | `--dest SUBPASTA` | Subpasta, relativa à pasta do RX, onde os arquivos serão gravados: `--tx C:\foto.jpg --dest ado/oash` com o RX em `--rx D:\recebidos` grava `D:\recebidos\ado\oash\foto.jpg`. Aceita `/` ou `\`; recusa `..` e drive. |
 | `--more` | Avisa o RX que outro arquivo vem em seguida (o RX continua escutando mesmo sem `--keep` e encerra no primeiro arquivo sem `--more`, ou se o próximo não chegar em 2 min). Automático numa lista do `--tx`; manual para encadear vários comandos. |
+| `--force-repl` | No RX, substitui o arquivo de mesmo nome (no mesmo `--dest`) em vez de gravar como `nome (1).ext`. Vai no manifesto; um RX de versão anterior ignora o pedido e grava com o sufixo. |
 | `--no-zip` | Envia sem compressão. Padrão: todo arquivo é comprimido (deflate) antes de enviar e o RX grava o original, com o mesmo nome e hash. Texto, código e logs ficam 2–3× menores; JPG, ZIP, DOCX e vídeo quase não mudam. |
 | `--zip-level 0-9` | Nível de compressão. Padrão 9 (máximo: o canal é lento e a CPU gasta é desprezível); 0 só embala, sem comprimir. |
 | `--mono` | Dados em mono (o mesmo sinal nos dois canais), para entrada ou cabo mono. Metade da velocidade. O RX detecta pelo header, sem opção. |
@@ -330,7 +331,7 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
 | `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 1` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `defaults` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.2.0b3`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.2.0b4`) e sai. |
 
 ### Configuração e diagnóstico
 
