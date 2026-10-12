@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.2.0b4`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.3.0b0`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -55,10 +55,10 @@ Nos exemplos, os IDs são fictícios: troque pelos do seu `--list-devices`.
 ### Listar dispositivos
 
 ```bash
-# saídas e entradas de áudio com ID curto, mais os padrões e apelidos cadastrados
+# saídas e entradas de áudio com ID curto, mais os perfis e apelidos cadastrados
 python -m soundbridge --list-devices
 
-# o mesmo em JSON (um documento: outputs, inputs, aliases, defaults, config)
+# o mesmo em JSON (um documento: outputs, inputs, aliases, profiles, config)
 python -m soundbridge --list-devices --json
 
 # só os IDs das entradas, para scripts (com jq)
@@ -69,16 +69,63 @@ python -m soundbridge --list-devices --json | jq -r '.inputs[].id'
 python -m soundbridge --alias dados=k7p2
 python -m soundbridge --alias retorno=m3xa
 python -m soundbridge --alias dados=
-
-# padrões: dispensam --out/--in (e a pasta do --rx) nos próximos comandos
-python -m soundbridge --save-defaults --out k7p2 --in m3xa
-python -m soundbridge --save-defaults --dir D:\recebidos
-python -m soundbridge --save-defaults --out dados --in retorno --dir D:\recebidos
-python -m soundbridge --clear-defaults
 ```
 
 Os devices aceitam ID curto (`k7p2`), apelido (`dados`), nome ou trecho do nome
 (`"Alto Falante"`) e índice (que muda ao replugar). O ID curto vem do nome do device e não muda.
+
+### Perfis de enlace
+
+Um **perfil** guarda as configurações de um enlace com outro PC: placas, pasta de recepção, MCS,
+compressão, calibração. **Não há padrões globais:** ou o comando usa um perfil (`--profile NOME`), ou
+informa tudo na linha de comando. O mesmo nome é usado nas duas pontas, e cada PC guarda no próprio
+arquivo de configuração o que é dele. Um PC com várias placas tem um perfil por enlace; perfis diferentes
+podem repetir entradas e saídas.
+
+```bash
+# criar ou atualizar (um ou vários campos de uma vez; só os informados mudam)
+python -m soundbridge --save-profile casa --out k7p2 --in m3xa --dir D:\recebidos
+python -m soundbridge --save-profile casa --mcs 8 --zip-level 9
+
+# apagar campos do perfil, ou o perfil inteiro
+python -m soundbridge --save-profile casa --unset mcs,peak
+python -m soundbridge --delete-profile casa
+
+# usar: completa o que não for informado (o informado sempre vence)
+python -m soundbridge --tx C:\relatorio.pdf --profile casa
+python -m soundbridge --tx C:\relatorio.pdf --profile casa --out ggxj      # troca só a saída
+python -m soundbridge --rx --profile casa --keep                            # pasta do perfil
+```
+
+Campos do perfil (os nomes das opções, sem `--`): `out`, `in`, `dir`, `bi`, `mcs`/`auto`,
+`zip-level`/`no-zip`, `mono`, `band-high`, `peak`, `ack-peak`, `ack-band`, `shared`, `keep` e `force-repl`.
+Ficam de fora a ação (`--tx`/`--rx`), a apresentação (`--json`, `--verbose`, `--no-progress`) e o que é de
+cada envio (`--dest`, `--more`). `--auto` informado anula o `mcs` do perfil, e `--no-zip`, o `zip-level`.
+Um campo ligado no perfil (ex.: `mono`) só sai com `--unset` ou outro perfil.
+
+Nome do perfil: letras minúsculas, dígitos, `_` ou `-`, começando por letra (até 32). Perfil inexistente é
+recusado com a lista dos cadastrados. Os padrões da versão anterior (`--save-defaults`) viram, uma vez, o
+perfil `padrao`.
+
+**O TX manda o perfil e o RX escolhe a pasta.** Com `--tx --profile casa`, o nome `casa` vai no manifesto do
+arquivo. O RX grava na pasta escolhida nesta ordem, e o `--dest` do TX fica sempre relativo a ela:
+
+1. a pasta explícita do RX (`--rx D:\fixo`);
+2. o `dir` do perfil `casa` **deste PC** (vence o perfil de escuta: a mesma entrada pode receber de vários TX);
+3. o `dir` do perfil com que o RX escuta (`--rx --profile lab`);
+4. a pasta atual.
+
+Se o perfil mandado não existir no RX (ou não tiver pasta), o arquivo cai na regra 3 ou 4 e o resultado avisa:
+`perfil 'casa' não existe neste PC; gravado em …`. O TX só escolhe um nome; o caminho é sempre o que o dono
+do RX cadastrou. Sem perfil no TX, a pasta segue como antes. Um RX de versão anterior ignora o perfil.
+
+```bash
+# PC B escuta numa entrada que recebe de dois PCs; cada um cai na sua pasta
+PC B:  python -m soundbridge --save-profile notebook --dir D:\recebidos\notebook
+PC B:  python -m soundbridge --save-profile desktop --dir D:\recebidos\desktop
+PC B:  python -m soundbridge --rx --in t4wq --keep
+PC A:  python -m soundbridge --tx C:\relatorio.pdf --profile notebook --dest docs   # D:\recebidos\notebook\docs
+```
 
 ### Calibrar o enlace
 
@@ -103,9 +150,11 @@ sentidos**, em poucos minutos.
    no RX). Se menos de 80% passar, a configuração desce um degrau (MCS menor, depois banda menor, depois
    mono) e é testada de novo. Os tamanhos de teste vêm de uma lista: arquivos pequenos validam rápido;
    arquivos grandes pegam problemas que só aparecem em quadros longos (AGC, rajadas da placa).
-4. Com **`--calibrate-save`**, o resultado vira o **perfil padrão** dos dois PCs (por par de devices). Daí
-   em diante, `--tx` usa o pico, o mono, a banda e o MCS do perfil, e `--rx` usa o nível do ACK, quando você
-   não os informa. O que for passado na linha de comando sempre vence.
+4. Com **`--profile NOME --calibrate-save`**, o resultado é gravado no **perfil** (pico, pico do ACK, mono,
+   banda, MCS e os testes). O nome do perfil vai no relatório, e o outro PC grava o sentido dele no perfil
+   **de mesmo nome** (se existir lá), senão no perfil com que está escutando (`--rx --profile NOME`). Daí em diante, `--tx --profile NOME` usa pico, mono, banda e MCS do perfil, e
+   `--rx --profile NOME` usa o pico do ACK, quando você não os informa. O que for passado na linha de comando
+   sempre vence.
 
 Sem `--calibrate-save`, nada é gravado: a calibração só mostra o resultado e os comandos prontos.
 
@@ -114,15 +163,16 @@ Sem `--calibrate-save`, nada é gravado: a calibração só mostra o resultado e
 PC B:  python -m soundbridge --rx D:\recebidos --in t4wq --out d9fr --keep
 PC A:  python -m soundbridge --calibrate --out k7p2 --in m3xa
 
-# 2. Medir, validar com 10 transferências de 5 KB por sentido e salvar nos dois PCs
-PC A:  python -m soundbridge --calibrate --out k7p2 --in m3xa --calibrate-test --calibrate-save
+# 2. Medir, validar com 10 transferências de 5 KB por sentido e salvar no perfil "casa" dos dois PCs
+PC B:  python -m soundbridge --rx --profile casa --keep
+PC A:  python -m soundbridge --calibrate --profile casa --calibrate-test --calibrate-save
 
 # 3. Validar em vários tamanhos (do menor ao maior; a escolha final passa em todos)
-PC A:  python -m soundbridge --calibrate --out k7p2 --in m3xa --calibrate-test 5k,200k,1mb --calibrate-save
+PC A:  python -m soundbridge --calibrate --profile casa --calibrate-test 5k,200k,1mb --calibrate-save
 
 # 4. Depois de salvo, enviar e receber sem informar pico, mono, banda nem MCS
-PC B:  python -m soundbridge --rx D:\recebidos --in t4wq --out d9fr --keep
-PC A:  python -m soundbridge --tx C:\relatorio.pdf --out k7p2 --in m3xa --bi
+PC B:  python -m soundbridge --rx --profile casa --keep
+PC A:  python -m soundbridge --tx C:\relatorio.pdf --profile casa --bi
 ```
 
 Exemplo de resultado (PC A com saída de linha; PC B com entrada de microfone de notebook):
@@ -136,7 +186,7 @@ comandos:
   receber no outro PC: python -m python -m soundbridge --rx PASTA --out <saída do outro PC> --in <entrada do outro PC> --keep --ack-peak 0.2
   enviar do outro PC:  python -m python -m soundbridge --tx ARQUIVO --out <saída do outro PC> --in <entrada do outro PC> --bi --band-high 22000 --peak 0.2 --mcs 9
   receber aqui:        python -m python -m soundbridge --rx PASTA --out k7p2 --in m3xa --keep --ack-peak 0.0055
-perfil salvo nos dois PCs: --tx e --rx usam esses valores quando não forem informados
+calibração gravada no perfil 'casa' (e no outro PC, se ele estiver em --rx --profile)
 ```
 
 **Tamanhos de teste** (`--calibrate-test`): `2k`, `5k`, `10k`, `20k`, `50k`, `100k`, `200k`, `500k`, `1mb`,
@@ -222,14 +272,14 @@ PC A:  python -m soundbridge --tx C:\logs --out k7p2 --zip-level 6
 PC B:  python -m soundbridge --rx D:\recebidos --in t4wq
 PC A:  python -m soundbridge --tx C:\relatorio.pdf --out k7p2 --mono --band-high 10000 --peak 0.05 --mcs 8
 
-# 10. Com padrões salvos nos dois PCs (sem --out/--in nem pasta)
-PC B:  python -m soundbridge --rx --keep
-PC A:  python -m soundbridge --tx C:\relatorio.pdf --bi
+# 10. Com perfil nos dois PCs (sem --out/--in nem pasta; ver "Perfis de enlace")
+PC B:  python -m soundbridge --rx --profile casa --keep
+PC A:  python -m soundbridge --tx C:\relatorio.pdf --profile casa --bi
 
-# 11. Calibrar os dois sentidos, testar e salvar como padrão (ver "Calibrar o enlace")
-PC B:  python -m soundbridge --rx D:\recebidos --in t4wq --out d9fr --keep
-PC A:  python -m soundbridge --calibrate --out k7p2 --in m3xa --calibrate-test 5k,200k --calibrate-save
-PC A:  python -m soundbridge --tx C:\relatorio.pdf --out k7p2 --in m3xa --bi        # usa o perfil salvo
+# 11. Calibrar os dois sentidos, testar e salvar no perfil (ver "Calibrar o enlace")
+PC B:  python -m soundbridge --rx --profile casa --keep
+PC A:  python -m soundbridge --calibrate --profile casa --calibrate-test 5k,200k --calibrate-save
+PC A:  python -m soundbridge --tx C:\relatorio.pdf --profile casa --bi             # usa a calibração do perfil
 
 # 12. Saída para scripts e diagnóstico
 PC A:  python -m soundbridge --tx C:\relatorio.pdf --out k7p2 --json            # uma linha JSON por evento
@@ -255,9 +305,9 @@ PC B:  python -m soundbridge --rx D:\recebidos --in t4wq --out d9fr --keep
 PC A:  python -m soundbridge --tx C:\a.pdf --out k7p2 --in m3xa --bi
 PC A:  python -m soundbridge --tx "C:\b.pdf;C:\c.zip" --out k7p2 --in m3xa --bi
 
-# 4. Receber na pasta padrão (ou na pasta atual, se não houver padrão)
-PC B:  python -m soundbridge --save-defaults --dir D:\recebidos
-PC B:  python -m soundbridge --rx --in t4wq --out d9fr
+# 4. Receber na pasta do perfil (ou na pasta atual, sem perfil)
+PC B:  python -m soundbridge --save-profile casa --dir D:\recebidos
+PC B:  python -m soundbridge --rx --profile casa --in t4wq --out d9fr
 
 # 5. Receber de quem envia para entrada de microfone (o RX descobre mono e banda pelo header)
 PC B:  python -m soundbridge --rx D:\recebidos --in t4wq
@@ -274,9 +324,9 @@ PC A:  python -m soundbridge --calibrate --out k7p2 --in m3xa
 # 8. Registrar a recepção em JSON (log para scripts)
 PC B:  python -m soundbridge --rx D:\recebidos --in t4wq --out d9fr --keep --json > recepcao.jsonl
 
-# 9. Com padrões salvos (devices e pasta)
-PC B:  python -m soundbridge --save-defaults --out d9fr --in t4wq --dir D:\recebidos
-PC B:  python -m soundbridge --rx --keep
+# 9. Com perfil (devices e pasta)
+PC B:  python -m soundbridge --save-profile casa --out d9fr --in t4wq --dir D:\recebidos
+PC B:  python -m soundbridge --rx --profile casa --keep
 ```
 
 O arquivo é gravado com o mesmo nome (mais a subpasta do `--dest` do TX) e, sem `--force-repl` no TX, nunca sobrescreve:
@@ -286,14 +336,14 @@ O arquivo é gravado com o mesmo nome (mais a subpasta do `--dest` do TX) e, sem
 
 ## Parâmetros da linha de comando
 
-Uma ação por vez (`--tx`, `--rx`, `--calibrate`, `--calibrate-uni`, `--list-devices`, `--alias`, `--save-defaults`,
-`--clear-defaults`). As tabelas abaixo agrupam os parâmetros por quem os usa.
+Uma ação por vez (`--tx`, `--rx`, `--calibrate`, `--calibrate-uni`, `--list-devices`, `--alias`, `--save-profile`,
+`--delete-profile`). As tabelas abaixo agrupam os parâmetros por quem os usa.
 
 ### TX (envio): `python -m soundbridge --tx ...`
 
 | Parâmetro | Descrição |
 |---|---|
-| `--tx "ARQ1;ARQ2;..."` | Envia um ou mais arquivos e/ou pastas, em sequência: um item, ou uma lista entre aspas separada por `;` (ex.: `--tx "C:\a.jpg;C:\b.pdf;C:\fotos\*.jpg;C:\docs"`). Aceita curingas, expandidos pelo próprio SoundBridge. **Pasta** envia todos os arquivos dentro dela, recursivamente, e o RX recria a estrutura de subpastas **a partir do conteúdo** (sem o nome da própria pasta): com `--tx C:\docs --dest backup`, `C:\docs\a.txt` vai para `<pasta do RX>\backup\a.txt` e `C:\docs\sub\b.txt` para `<pasta do RX>\backup\sub\b.txt`. Pastas vazias são ignoradas. Todos menos o último levam `--more`, então o RX recebe a lista inteira mesmo sem `--keep`. Tudo é conferido antes de começar; no fim, um resumo (`3/3 arquivos enviados`). Exige `--out`; com `--bi`, exige também `--in` (informados ou do padrão, `--save-defaults`). |
+| `--tx "ARQ1;ARQ2;..."` | Envia um ou mais arquivos e/ou pastas, em sequência: um item, ou uma lista entre aspas separada por `;` (ex.: `--tx "C:\a.jpg;C:\b.pdf;C:\fotos\*.jpg;C:\docs"`). Aceita curingas, expandidos pelo próprio SoundBridge. **Pasta** envia todos os arquivos dentro dela, recursivamente, e o RX recria a estrutura de subpastas **a partir do conteúdo** (sem o nome da própria pasta): com `--tx C:\docs --dest backup`, `C:\docs\a.txt` vai para `<pasta do RX>\backup\a.txt` e `C:\docs\sub\b.txt` para `<pasta do RX>\backup\sub\b.txt`. Pastas vazias são ignoradas. Todos menos o último levam `--more`, então o RX recebe a lista inteira mesmo sem `--keep`. Tudo é conferido antes de começar; no fim, um resumo (`3/3 arquivos enviados`). Exige `--out`; com `--bi`, exige também `--in` (informados ou do perfil, `--profile`). |
 | `--bi` | Bidirecional com ARQ: o RX confirma cada round e o TX reenvia só o que faltou. Exige os dois cabos (e o RX com `--out`). Padrão: unidirecional (um cabo, sem retransmissão, protegido por paridade Reed-Solomon). O RX detecta o modo sozinho. |
 | `--auto` | Escolha automática do MCS (padrão). Uni: o maior MCS até 6 cujo áudio estimado cabe em 3 s, senão MCS 3 (na prática, MCS 6 até ~50 KB). Bi: MCS adaptativo começando em 7, que sobe e desce conforme as perdas de cada round. |
 | `--mcs 0-9` | Fixa o MCS (desliga a adaptação no bi). Não combina com `--auto`. Tabela abaixo. |
@@ -311,7 +361,7 @@ No TX, `--out` leva os dados e `--in` recebe o ACK (só no `--bi`).
 
 | Parâmetro | Descrição |
 |---|---|
-| `--rx [PASTA]` | Recebe arquivos na pasta (criada se não existir) e espera até Ctrl+C. Sem pasta: a padrão (`--save-defaults --dir`) ou, sem padrão, a pasta atual. O modo (uni/bi), o mono e a compressão são detectados sozinhos. O arquivo é gravado na pasta (mais a subpasta do `--dest` do TX) e não sobrescreve: `nome (1).ext`. Exige `--in`. |
+| `--rx [PASTA]` | Recebe arquivos na pasta (criada se não existir) e espera até Ctrl+C. Sem pasta: o `dir` do perfil (`--profile`) ou, sem perfil, a pasta atual. O modo (uni/bi), o mono e a compressão são detectados sozinhos. O arquivo é gravado na pasta (mais a subpasta do `--dest` do TX) e não sobrescreve: `nome (1).ext`. Exige `--in`. |
 | `--keep` | Continua escutando depois de cada arquivo. Uma transmissão nova encerra a anterior se ela ficou incompleta. |
 
 No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só recebe transferências unidirecionais.
@@ -320,32 +370,34 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 
 | Parâmetro | Descrição |
 |---|---|
-| `--out DEVICE` | Saída de áudio (TX: dados; RX: ACK). Aceita ID curto, apelido, nome (exato ou trecho único) ou índice. Sem ela, usa o padrão do `--save-defaults`. |
-| `--in DEVICE` | Entrada de áudio (TX: ACK; RX: dados). Mesmos formatos de `--out`. Sem ela, usa o padrão do `--save-defaults`. |
+| `--out DEVICE` | Saída de áudio (TX: dados; RX: ACK). Aceita ID curto, apelido, nome (exato ou trecho único) ou índice. Sem ela, usa a do perfil (`--profile`). |
+| `--in DEVICE` | Entrada de áudio (TX: ACK; RX: dados). Mesmos formatos de `--out`. Sem ela, usa a do perfil (`--profile`). |
 | `--shared` | Usa o WASAPI em modo compartilhado. Padrão: exclusivo (evita o processamento de áudio do Windows, que degrada o sinal). |
 | `--band-high HZ` | Limite superior da banda dos dados. Padrão: 22000. Valores da tabela: 5000, 7000, 8000, 10000, 14000, 18000, 22000. No TX define a banda; o RX procura todas as da tabela e lê a do header, sem precisar do parâmetro. Valor fora da tabela: o RX só acha o quadro se usar o mesmo `--band-high`. |
 | `--ack-band HZ` | Limite superior da banda do ACK. Padrão: 7000 (entradas de microfone cortam em ~8 kHz). **Igual nos dois lados.** |
-| `--ack-peak 0-1` | Pico do ACK. Padrão: o do perfil salvo pela calibração; sem perfil, 0,02 (baixo porque entradas de microfone têm ganho alto). |
+| `--ack-peak 0-1` | Pico do ACK. Padrão: o do perfil (gravado pela calibração); sem perfil, 0,02 (baixo porque entradas de microfone têm ganho alto). |
 | (padrão) | Barra de progresso numa linha atualizada no lugar: percentual, blocos, KB/s, tempo restante (pela taxa recente) e round/MCS. Avisos (clip) aparecem acima dela. Só em terminal (inclui o Git Bash); com a saída redirecionada, volta às linhas por round. |
 | `--verbose` | Mostra também uma linha por round (TX) e por quadro (RX). |
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
-| `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 1` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `defaults` e `config`. |
+| `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 2` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. O `result` do RX traz `profile` (o perfil que o TX mandou), `dir_source` (`explicit`, `manifest`, `listening` ou `cwd`) e `note` (aviso de perfil inexistente ou sem pasta). No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `profiles` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.2.0b4`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.3.0b0`) e sai. |
 
 ### Configuração e diagnóstico
 
 | Parâmetro | Descrição |
 |---|---|
-| `--list-devices` | Lista saídas e entradas de áudio com ID curto e nome, os padrões e os apelidos. |
+| `--list-devices` | Lista saídas e entradas de áudio com ID curto e nome, os perfis e os apelidos. |
 | `--alias NOME=DEVICE` | Cadastra um apelido (ex.: `--alias dados=k7p2`) para usar em `--out`/`--in`. `NOME=` remove. Nome: letras minúsculas, dígitos, `_` ou `-`, começando por letra. Fica no arquivo de configuração do usuário (`%APPDATA%\soundbridge\config.json` no Windows; `SOUNDBRIDGE_CONFIG` troca o caminho). |
-| `--save-defaults` | Grava o `--out`, o `--in` e/ou a pasta do `--rx` (`--dir PASTA`) informados como padrão (devices validados antes de gravar). O informado na linha de comando sempre vence. Um par basta para os dois papéis: em cada PC a saída e a entrada do enlace são as mesmas, seja ele TX ou RX. |
-| `--dir PASTA` | Com `--save-defaults`: pasta padrão onde o `--rx` grava os arquivos. |
-| `--clear-defaults` | Remove os padrões (devices e pasta). |
+| `--save-profile NOME` | Cria ou atualiza o perfil NOME com as opções informadas (um ou vários campos: `--out`, `--in`, `--dir`, `--mcs`, `--zip-level`...; devices validados antes de gravar). Só os informados mudam. Ver "Perfis de enlace". |
+| `--unset CAMPOS` | Com `--save-profile`: remove campos do perfil (lista separada por vírgula, ex.: `mcs,peak`). |
+| `--delete-profile NOME` | Remove o perfil. |
+| `--profile NOME` | Usa o perfil NOME: completa as opções não informadas (o informado sempre vence). Vale em `--tx`, `--rx`, `--calibrate` e `--calibrate-uni`. No `--tx`, o nome vai ao RX, que grava na pasta do perfil de mesmo nome dele (ver "Perfis de enlace"). |
+| `--dir PASTA` | Com `--save-profile`: pasta onde o `--rx` grava os arquivos. |
 | `--calibrate` | Calibra o enlace nos **dois sentidos** contra um RX em escuta (`--rx` com `--out`; um RX sem `--out` só mede e mostra o resultado, como na `--calibrate-uni`): uma sondagem de ~5 s em cada sentido mede nível, mono/estéreo, banda e SNR e recomenda `--peak`, `--mono`, `--band-high` e `--mcs` para cada um, com os comandos de TX e RX. Avisa entrada saturada e AGC. Exige `--out` e `--in`. |
-| `--calibrate-uni` | Calibra **só a ida** (um cabo): toca a sondagem pela `--out`; o RX do outro PC (em `--rx`, com ou sem `--out`) mede e mostra na tela dele a escolha e os parâmetros (`--mono`, `--band-high`, `--peak`, `--mcs`) para usar no TX. Sem validação nem gravação. Exige `--out`. |
 | `--calibrate-test [TAMANHOS]` | Com `--calibrate`: valida a escolha de cada sentido com transferências reais em bi (descartadas no RX), nos tamanhos da lista separada por vírgula: `2k`, `5k`, `10k`, `20k`, `50k`, `100k`, `200k`, `500k`, `1mb`, `5mb`, `10mb` (ex.: `--calibrate-test 5k,10k,10mb`; sem lista: `5k`). Repetições: 10 até 100k, 3 até 1mb, 1 em 5mb e 10mb. Testa do menor ao maior; aceita acima de 80% em cada tamanho; na 1ª reprovação desce um degrau (MCS, depois banda, depois mono) e recomeça, até 4 tentativas. Tamanhos grandes levam minutos (10mb ≈ 15 min por tentativa no melhor caso). |
-| `--calibrate-save` | Com `--calibrate`: grava o resultado como perfil padrão nos **dois PCs**, por par de devices. Depois, `--tx` usa pico, mono, banda e MCS do perfil e `--rx` usa o pico do ACK, quando não forem informados (o informado sempre vence). Sem ele, a calibração só mostra o resultado. |
+| `--calibrate-uni` | Calibra **só a ida** (um cabo): toca a sondagem pela `--out`; o RX do outro PC (em `--rx`, com ou sem `--out`) mede e mostra na tela dele a escolha e os parâmetros (`--mono`, `--band-high`, `--peak`, `--mcs`) para usar no TX. Sem validação nem gravação. Exige `--out`. |
+| `--calibrate-save` | Com `--calibrate` e `--profile`: grava o resultado no perfil (pico, pico do ACK, mono, banda, MCS e testes); o outro PC grava o sentido dele no perfil de mesmo nome (se existir lá) ou no de escuta. Sem ele, a calibração só mostra o resultado. |
 
 ### MCS (`--mcs`)
 
