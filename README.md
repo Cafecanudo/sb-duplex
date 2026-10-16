@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b0`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b1`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -354,6 +354,7 @@ Uma ação por vez (`--tx`, `--rx`, `--calibrate`, `--calibrate-uni`, `--list-de
 | `--more` | Avisa o RX que outro arquivo vem em seguida (o RX continua escutando mesmo sem `--keep` e encerra no primeiro arquivo sem `--more`, ou se o próximo não chegar em 2 min). Automático numa lista do `--tx`; manual para encadear vários comandos. |
 | `--force-repl` | No RX, substitui o arquivo de mesmo nome (no mesmo `--dest`) em vez de gravar como `nome (1).ext`. Vai no manifesto; um RX de versão anterior ignora o pedido e grava com o sufixo. |
 | `--delete` | Em vez de enviar, pede ao RX para **apagar de vez** cada item do `--tx` (arquivo ou pasta, com o conteúdo), em `<pasta do RX>/<--dest>/<nome>`: `--tx "src/velho;a.txt" --dest docs --delete` apaga `docs/velho` e `docs/a.txt`. Nenhum conteúdo vai no áudio, só o manifesto (cerca de 1 a 2 s por item). O item local não precisa existir (ex.: arquivo já apagado no git); curingas são ignorados; a pasta do RX nunca é apagada e o alvo nunca sai dela. Sem confirmação nem opção no RX. Um RX de versão anterior descarta o pedido. |
+| `--request` | Em vez de enviar, **pede de volta** cada arquivo do `--tx` a um RX com `--serve`, em `<pasta do RX>/<--dest>/<nome>`: `--tx "Main.java" --dest src --request` pede `src/Main.java`. Só vai o manifesto; o outro PC espera alguns segundos (5 s, depois do ACK no bi) e devolve o arquivo no mesmo modo do pedido, substituindo o existente. Logo depois do pedido, escute com `--rx`. O item local não precisa existir; curingas são ignorados. Exige os dois cabos para a volta funcionar no bi. |
 | `--no-zip` | Envia sem compressão. Padrão: todo arquivo é comprimido (deflate) antes de enviar e o RX grava o original, com o mesmo nome e hash. Texto, código e logs ficam 2–3× menores; JPG, ZIP, DOCX e vídeo quase não mudam. |
 | `--zip-level 0-9` | Nível de compressão. Padrão 9 (máximo: o canal é lento e a CPU gasta é desprezível); 0 só embala, sem comprimir. |
 | `--mono` | Dados em mono (o mesmo sinal nos dois canais), para entrada ou cabo mono. Metade da velocidade. O RX detecta pelo header, sem opção. |
@@ -367,6 +368,7 @@ No TX, `--out` leva os dados e `--in` recebe o ACK (só no `--bi`).
 |---|---|
 | `--rx [PASTA]` | Recebe arquivos na pasta (criada se não existir) e espera até Ctrl+C. Sem pasta: o `dir` do perfil (`--profile`) ou, sem perfil, a pasta atual. O modo (uni/bi), o mono e a compressão são detectados sozinhos. O arquivo é gravado na pasta (mais a subpasta do `--dest` do TX) e não sobrescreve: `nome (1).ext`. Exige `--in`. |
 | `--keep` | Continua escutando depois de cada arquivo. Uma transmissão nova encerra a anterior se ela ficou incompleta. |
+| `--serve` | Atende pedidos de reenvio (`--request` do outro PC): devolve o arquivo pedido, de dentro da pasta do RX, pela saída. Exige `--out`. Sem `--serve`, o pedido é recusado com aviso. |
 
 No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só recebe transferências unidirecionais.
 
@@ -385,7 +387,7 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
 | `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 2` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. O `result` do RX traz `profile` (o perfil que o TX mandou), `dir_source` (`explicit`, `manifest`, `listening` ou `cwd`) e `note` (aviso de perfil inexistente ou sem pasta). No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `profiles` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b0`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b1`) e sai. |
 
 ### Configuração e diagnóstico
 
