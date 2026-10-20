@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b3`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b4`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -335,11 +335,14 @@ O arquivo é gravado com o mesmo nome (mais a subpasta do `--dest` do TX) e, sem
 Um pedido de exclusão (`--delete` no TX) apaga o arquivo ou a pasta na hora e mostra o que foi apagado; item
 inexistente vira aviso.
 
+Uma verificação (`--verify` no TX) não grava nada: o RX mostra quantos arquivos da lista existem, não existem ou
+são diferentes, com uma linha para cada um que falta ou difere.
+
 ---
 
 ## Parâmetros da linha de comando
 
-Uma ação por vez (`--tx`, `--rx`, `--calibrate`, `--calibrate-uni`, `--list-devices`, `--alias`, `--save-profile`,
+Uma ação por vez (`--tx`, `--verify`, `--rx`, `--calibrate`, `--calibrate-uni`, `--list-devices`, `--alias`, `--save-profile`,
 `--delete-profile`). As tabelas abaixo agrupam os parâmetros por quem os usa.
 
 ### TX (envio): `python -m soundbridge --tx ...`
@@ -355,6 +358,7 @@ Uma ação por vez (`--tx`, `--rx`, `--calibrate`, `--calibrate-uni`, `--list-de
 | `--force-repl` | No RX, substitui o arquivo de mesmo nome (no mesmo `--dest`) em vez de gravar como `nome (1).ext`. Vai no manifesto; um RX de versão anterior ignora o pedido e grava com o sufixo. |
 | `--delete` | Em vez de enviar, pede ao RX para **apagar de vez** cada item do `--tx` (arquivo ou pasta, com o conteúdo), em `<pasta do RX>/<--dest>/<nome>`: `--tx "src/velho;a.txt" --dest docs --delete` apaga `docs/velho` e `docs/a.txt`. Nenhum conteúdo vai no áudio, só o manifesto (cerca de 1 a 2 s por item). O item local não precisa existir (ex.: arquivo já apagado no git); curingas são ignorados; a pasta do RX nunca é apagada e o alvo nunca sai dela. Sem confirmação nem opção no RX. Um RX de versão anterior descarta o pedido. |
 | `--request` | Em vez de enviar, **pede de volta** cada arquivo do `--tx` a um RX com `--serve`, em `<pasta do RX>/<--dest>/<nome>`: `--tx "Main.java" --dest src --request` pede `src/Main.java`. Só vai o manifesto; o outro PC espera alguns segundos (5 s, depois do ACK no bi) e devolve o arquivo no mesmo modo do pedido, substituindo o existente. Logo depois do pedido, escute com `--rx`. O item local não precisa existir; curingas são ignorados. Exige os dois cabos para a volta funcionar no bi. |
+| `--verify "CAM1;CAM2;..."` | Ação própria (no lugar de `--tx`): confere no RX se cada arquivo existe e é **igual** ao daqui. Caminhos sempre relativos à pasta atual e à pasta do RX, um arquivo por item: `--verify "src/Main.java;src/dao/Repo.java"`. Sem pasta, curinga, `..`, drive, `--dest` ou `--more`. Vai uma única lista com o hash (BLAKE2b) de cada arquivo; o RX confere tudo e responde `exists`, `missing` ou `differs` por arquivo. No bi o resultado volta para este PC (status `requesting` até a resposta); no uni só aparece no RX (status `requested` aqui). Arquivo que não existe aqui vai sem hash: o RX só diz se ele existe lá. Um RX de versão anterior descarta a lista. |
 | `--no-zip` | Envia sem compressão. Padrão: todo arquivo é comprimido (deflate) antes de enviar e o RX grava o original, com o mesmo nome e hash. Texto, código e logs ficam 2–3× menores; JPG, ZIP, DOCX e vídeo quase não mudam. |
 | `--zip-level 0-9` | Nível de compressão. Padrão 9 (máximo: o canal é lento e a CPU gasta é desprezível); 0 só embala, sem comprimir. |
 | `--mono` | Dados em mono (o mesmo sinal nos dois canais), para entrada ou cabo mono. Metade da velocidade. O RX detecta pelo header, sem opção. |
@@ -387,7 +391,7 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
 | `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 2` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. O `result` do RX traz `profile` (o perfil que o TX mandou), `dir_source` (`explicit`, `manifest`, `listening` ou `cwd`) e `note` (aviso de perfil inexistente ou sem pasta). No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `profiles` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b3`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b4`) e sai. |
 
 ### Configuração e diagnóstico
 
