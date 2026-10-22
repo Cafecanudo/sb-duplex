@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b4`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b5`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -373,6 +373,7 @@ No TX, `--out` leva os dados e `--in` recebe o ACK (só no `--bi`).
 | `--rx [PASTA]` | Recebe arquivos na pasta (criada se não existir) e espera até Ctrl+C. Sem pasta: o `dir` do perfil (`--profile`) ou, sem perfil, a pasta atual. O modo (uni/bi), o mono e a compressão são detectados sozinhos. O arquivo é gravado na pasta (mais a subpasta do `--dest` do TX) e não sobrescreve: `nome (1).ext`. Exige `--in`. |
 | `--keep` | Continua escutando depois de cada arquivo. Uma transmissão nova encerra a anterior se ela ficou incompleta. |
 | `--serve` | Atende pedidos de reenvio (`--request` do outro PC): devolve o arquivo pedido, de dentro da pasta do RX, pela saída. Exige `--out`. Sem `--serve`, o pedido é recusado com aviso. |
+| `--copy-memory` | Copia o recebido para a **área de transferência** em vez de gravar na pasta, sem perguntar. Texto e print enviados da memória do outro PC (nomes reservados `sb-memoria.txt` e `sb-memoria.png`) colam como texto e como imagem; qualquer outro arquivo vai para `%TEMP%\sb-duplex-memoria\<data-hora>\` e cola como arquivo (Ctrl+V no Explorer), com todos os arquivos da sequência juntos. Pastas temporárias com mais de 24 h são apagadas ao iniciar. Windows pela API do sistema; macOS por `pbcopy`/`osascript`; Linux exige `wl-copy` ou `xclip`. No Windows a imagem vai como PNG (Office, navegador, Teams, Slack) e como arquivo. |
 
 No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só recebe transferências unidirecionais.
 
@@ -391,7 +392,7 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
 | `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 2` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. O `result` do RX traz `profile` (o perfil que o TX mandou), `dir_source` (`explicit`, `manifest`, `listening` ou `cwd`) e `note` (aviso de perfil inexistente ou sem pasta). No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `profiles` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b4`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b5`) e sai. |
 
 ### Configuração e diagnóstico
 
