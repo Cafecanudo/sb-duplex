@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b5`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b6`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -252,6 +252,10 @@ PC A:  python -m soundbridge --tx "C:\relatorio.pdf;C:\notas.txt;C:\fotos\*.jpg"
 PC B:  python -m soundbridge --rx D:\recebidos --in t4wq --out d9fr
 PC A:  python -m soundbridge --tx C:\docs --dest backup --out k7p2 --in m3xa --bi
 
+# 4b. Pastas como pacote: cada pasta vai num único zip (um envio por pasta) e o RX extrai ao receber
+#     mesma estrutura do exemplo 4; o arquivo avulso da lista vai sozinho
+PC A:  python -m soundbridge --tx "C:\workspace;C:\unidades;C:\notas.txt" --only-package --zip-level 9 --out k7p2 --in m3xa --bi
+
 # 5. Arquivo numa subpasta do RX
 PC A:  python -m soundbridge --tx C:\foto.jpg --dest fotos/2026 --out k7p2 --in m3xa --bi
 
@@ -355,6 +359,8 @@ Uma ação por vez (`--tx`, `--verify`, `--rx`, `--calibrate`, `--calibrate-uni`
 | `--mcs 0-9` | Fixa o MCS (desliga a adaptação no bi). Não combina com `--auto`. Tabela abaixo. |
 | `--dest SUBPASTA` | Subpasta, relativa à pasta do RX, onde os arquivos serão gravados: `--tx C:\foto.jpg --dest ado/oash` com o RX em `--rx D:\recebidos` grava `D:\recebidos\ado\oash\foto.jpg`. Aceita `/` ou `\`; recusa `..` e drive. |
 | `--more` | Avisa o RX que outro arquivo vem em seguida (o RX continua escutando mesmo sem `--keep` e encerra no primeiro arquivo sem `--more`, ou se o próximo não chegar em 2 min). Automático numa lista do `--tx`; manual para encadear vários comandos. |
+| `--only-package` | Cada **pasta** do `--tx` vai inteira num único pacote (zip), em vez de um envio por arquivo: `--tx "C:\workspace;C:\unidades" --only-package` faz 2 envios. Arquivos avulsos da lista vão sozinhos, como sem a opção. O RX extrai o pacote ao receber, com o mesmo resultado do envio comum (conteúdo direto no `--dest`, mesmas subpastas), respeitando `--force-repl`; com `--copy-memory`, extrai na pasta temporária. Economiza o preâmbulo e o handshake de cada arquivo e comprime a pasta inteira de uma vez (melhor em muitos arquivos pequenos e parecidos). No uni, uma falha perde o pacote inteiro. Um RX de versão anterior descarta o pacote. |
+| `--copy-memory` | O RX põe o recebido na **área de transferência** dele em vez de gravar na pasta, sem perguntar (o RX não tem opção: copia sempre que o envio pede). Texto e print enviados da memória deste PC (nomes reservados `sb-memoria.txt` e `sb-memoria.png`) colam como texto e como imagem; qualquer outro arquivo vai para `%TEMP%\sb-duplex-memoria\<data-hora>\` no RX e cola como arquivo (Ctrl+V no Explorer), com todos os arquivos da sequência juntos; com `--only-package`, o pacote é extraído ali e a lista leva o primeiro nível dele. Vai no manifesto (bit 6 nas versões 3 e 6); um RX de versão anterior grava na pasta. Atenção: qualquer TX no cabo pode sobrescrever a área de transferência do RX. Windows pela API do sistema; macOS por `pbcopy`/`osascript`; Linux exige `wl-copy` ou `xclip` no RX (sem eles, só o envio com `--copy-memory` falha). No Windows a imagem vai como PNG (Office, navegador, Teams, Slack) e como arquivo. Não combina com `--delete` nem `--request`. |
 | `--force-repl` | No RX, substitui o arquivo de mesmo nome (no mesmo `--dest`) em vez de gravar como `nome (1).ext`. Vai no manifesto; um RX de versão anterior ignora o pedido e grava com o sufixo. |
 | `--delete` | Em vez de enviar, pede ao RX para **apagar de vez** cada item do `--tx` (arquivo ou pasta, com o conteúdo), em `<pasta do RX>/<--dest>/<nome>`: `--tx "src/velho;a.txt" --dest docs --delete` apaga `docs/velho` e `docs/a.txt`. Nenhum conteúdo vai no áudio, só o manifesto (cerca de 1 a 2 s por item). O item local não precisa existir (ex.: arquivo já apagado no git); curingas são ignorados; a pasta do RX nunca é apagada e o alvo nunca sai dela. Sem confirmação nem opção no RX. Um RX de versão anterior descarta o pedido. |
 | `--request` | Em vez de enviar, **pede de volta** cada arquivo do `--tx` a um RX com `--serve`, em `<pasta do RX>/<--dest>/<nome>`: `--tx "Main.java" --dest src --request` pede `src/Main.java`. Só vai o manifesto; o outro PC espera alguns segundos (5 s, depois do ACK no bi) e devolve o arquivo no mesmo modo do pedido, substituindo o existente. Logo depois do pedido, escute com `--rx`. O item local não precisa existir; curingas são ignorados. Exige os dois cabos para a volta funcionar no bi. |
@@ -373,7 +379,6 @@ No TX, `--out` leva os dados e `--in` recebe o ACK (só no `--bi`).
 | `--rx [PASTA]` | Recebe arquivos na pasta (criada se não existir) e espera até Ctrl+C. Sem pasta: o `dir` do perfil (`--profile`) ou, sem perfil, a pasta atual. O modo (uni/bi), o mono e a compressão são detectados sozinhos. O arquivo é gravado na pasta (mais a subpasta do `--dest` do TX) e não sobrescreve: `nome (1).ext`. Exige `--in`. |
 | `--keep` | Continua escutando depois de cada arquivo. Uma transmissão nova encerra a anterior se ela ficou incompleta. |
 | `--serve` | Atende pedidos de reenvio (`--request` do outro PC): devolve o arquivo pedido, de dentro da pasta do RX, pela saída. Exige `--out`. Sem `--serve`, o pedido é recusado com aviso. |
-| `--copy-memory` | Copia o recebido para a **área de transferência** em vez de gravar na pasta, sem perguntar. Texto e print enviados da memória do outro PC (nomes reservados `sb-memoria.txt` e `sb-memoria.png`) colam como texto e como imagem; qualquer outro arquivo vai para `%TEMP%\sb-duplex-memoria\<data-hora>\` e cola como arquivo (Ctrl+V no Explorer), com todos os arquivos da sequência juntos. Pastas temporárias com mais de 24 h são apagadas ao iniciar. Windows pela API do sistema; macOS por `pbcopy`/`osascript`; Linux exige `wl-copy` ou `xclip`. No Windows a imagem vai como PNG (Office, navegador, Teams, Slack) e como arquivo. |
 
 No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só recebe transferências unidirecionais.
 
@@ -392,7 +397,7 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
 | `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 2` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. O `result` do RX traz `profile` (o perfil que o TX mandou), `dir_source` (`explicit`, `manifest`, `listening` ou `cwd`) e `note` (aviso de perfil inexistente ou sem pasta). No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `profiles` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b5`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b6`) e sai. |
 
 ### Configuração e diagnóstico
 
