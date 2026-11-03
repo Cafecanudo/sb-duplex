@@ -21,7 +21,7 @@ programa, por linha de comando. Inclui **calibração automática** do enlace no
 python -m pip install --pre sb-duplex
 ```
 
-Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b6`).
+Enquanto a versão for beta, o `--pre` é necessário (ou a versão explícita: `sb-duplex==1.4.0b7`).
 O pacote não cria um executável: tudo roda com `python -m soundbridge`.
 
 ```bash
@@ -357,7 +357,7 @@ Uma ação por vez (`--tx`, `--verify`, `--rx`, `--calibrate`, `--calibrate-uni`
 | `--bi` | Bidirecional com ARQ: o RX confirma cada round e o TX reenvia só o que faltou. Exige os dois cabos (e o RX com `--out`). Padrão: unidirecional (um cabo, sem retransmissão, protegido por paridade Reed-Solomon). O RX detecta o modo sozinho. |
 | `--auto` | Escolha automática do MCS (padrão). Uni: o maior MCS até 6 cujo áudio estimado cabe em 3 s, senão MCS 3 (na prática, MCS 6 até ~50 KB). Bi: MCS adaptativo começando em 7, que sobe e desce conforme as perdas de cada round. |
 | `--mcs 0-9` | Fixa o MCS (desliga a adaptação no bi). Não combina com `--auto`. Tabela abaixo. |
-| `--dest SUBPASTA` | Subpasta, relativa à pasta do RX, onde os arquivos serão gravados: `--tx C:\foto.jpg --dest ado/oash` com o RX em `--rx D:\recebidos` grava `D:\recebidos\ado\oash\foto.jpg`. Aceita `/` ou `\`; recusa `..` e drive. |
+| `--dest SUBPASTA` | Subpasta, relativa à pasta do RX, onde os arquivos serão gravados: `--tx C:\foto.jpg --dest ado/oash` com o RX em `--rx D:\recebidos` grava `D:\recebidos\ado\oash\foto.jpg`. Aceita `/` ou `\` e até 64 níveis; recusa `..` e drive. |
 | `--more` | Avisa o RX que outro arquivo vem em seguida (o RX continua escutando mesmo sem `--keep` e encerra no primeiro arquivo sem `--more`, ou se o próximo não chegar em 2 min). Automático numa lista do `--tx`; manual para encadear vários comandos. |
 | `--only-package` | Cada **pasta** do `--tx` vai inteira num único pacote (zip), em vez de um envio por arquivo: `--tx "C:\workspace;C:\unidades" --only-package` faz 2 envios. Arquivos avulsos da lista vão sozinhos, como sem a opção. O RX extrai o pacote ao receber, com o mesmo resultado do envio comum (conteúdo direto no `--dest`, mesmas subpastas), respeitando `--force-repl`; com `--copy-memory`, extrai na pasta temporária. Economiza o preâmbulo e o handshake de cada arquivo e comprime a pasta inteira de uma vez (melhor em muitos arquivos pequenos e parecidos). No uni, uma falha perde o pacote inteiro. Um RX de versão anterior descarta o pacote. |
 | `--copy-memory` | O RX põe o recebido na **área de transferência** dele em vez de gravar na pasta, sem perguntar (o RX não tem opção: copia sempre que o envio pede). Texto e print enviados da memória deste PC (nomes reservados `sb-memoria.txt` e `sb-memoria.png`) colam como texto e como imagem; qualquer outro arquivo vai para `%TEMP%\sb-duplex-memoria\<data-hora>\` no RX e cola como arquivo (Ctrl+V no Explorer), com todos os arquivos da sequência juntos; com `--only-package`, o pacote é extraído ali e a lista leva o primeiro nível dele. Vai no manifesto (bit 6 nas versões 3 e 6); um RX de versão anterior grava na pasta. Atenção: qualquer TX no cabo pode sobrescrever a área de transferência do RX. Windows pela API do sistema; macOS por `pbcopy`/`osascript`; Linux exige `wl-copy` ou `xclip` no RX (sem eles, só o envio com `--copy-memory` falha). No Windows a imagem vai como PNG (Office, navegador, Teams, Slack) e como arquivo. Não combina com `--delete` nem `--request`. |
@@ -397,7 +397,7 @@ No RX, `--in` recebe os dados e `--out` envia o ACK. Sem `--out`, o RX só receb
 | `--no-progress` | Sem barra: uma linha por round/quadro (o formato anterior). |
 | `--json` | Saída em JSON para scripts e integrações: uma linha por evento, todas com `"schema": 2` (versão do formato) e `event`. No TX e no RX, o evento `progress` substitui a barra a cada 0,5 s (`fraction`, `done`/`total` em blocos, `size`, `kib_per_s`, `eta_s`, `status`); `--no-progress` o desliga. O `result` do RX traz `profile` (o perfil que o TX mandou), `dir_source` (`explicit`, `manifest`, `listening` ou `cwd`) e `note` (aviso de perfil inexistente ou sem pasta). No `--list-devices`, um único documento com `schema`, `outputs`, `inputs` (cada device com `id`, `name`, `channels`, `samplerate`, `index`), `aliases`, `profiles` e `config`. |
 | `-h`, `--help` | Mostra a ajuda. |
-| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b6`) e sai. |
+| `--version` | Mostra a versão instalada (ex.: `sb-duplex 1.4.0b7`) e sai. |
 
 ### Configuração e diagnóstico
 
